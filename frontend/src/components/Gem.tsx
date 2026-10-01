@@ -28,6 +28,18 @@ const GEM_ICON: Record<GemColor, keyof typeof Ionicons.glyphMap> = {
   coral: "flame",
 };
 
+/**
+ * Premium 3D gem rendered as a stack of translucent layers:
+ *  - outer pulsing glow (visible when selected)
+ *  - depth drop shadow via elevation / shadow props
+ *  - radial-ish gradient body (highlight → base → shadow)
+ *  - bright faceted top ellipse
+ *  - crescent bottom highlight (refractive bottom)
+ *  - thin rim light along the top edge
+ *  - specular glint + micro-glint
+ *  - subtle engraved icon
+ *  - entrance sparkle burst
+ */
 export function Gem({ color, selected = false, size = 42 }: GemProps) {
   const { colors } = useTheme();
   const styles = useStyles();
@@ -38,58 +50,71 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
   const glow = useSharedValue(0);
   const entrance = useSharedValue(0);
   const sparkle = useSharedValue(0);
+  const spin = useSharedValue(0);
 
-  // Entrance / landing animation on mount (also triggers on initial level load)
+  // Entrance / landing animation on mount
   useEffect(() => {
     entrance.value = withSpring(1, { damping: 11, stiffness: 190, mass: 0.6 });
     sparkle.value = withSequence(
       withTiming(1, { duration: 180, easing: Easing.out(Easing.quad) }),
-      withTiming(0, { duration: 340, easing: Easing.in(Easing.quad) }),
+      withTiming(0, { duration: 380, easing: Easing.in(Easing.quad) }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Selection: lift + idle float + pulsing glow
+  // Selection: lift + idle float + pulsing glow + slow spin on sparkle
   useEffect(() => {
-    lift.value = withSpring(selected ? -11 : 0, { damping: 14, stiffness: 190 });
+    lift.value = withSpring(selected ? -12 : 0, { damping: 14, stiffness: 190 });
     if (selected) {
       float.value = withRepeat(
         withSequence(
-          withTiming(-3, { duration: 900, easing: Easing.inOut(Easing.quad) }),
-          withTiming(0, { duration: 900, easing: Easing.inOut(Easing.quad) }),
+          withTiming(-3, { duration: 950, easing: Easing.inOut(Easing.quad) }),
+          withTiming(0, { duration: 950, easing: Easing.inOut(Easing.quad) }),
         ),
         -1,
         false,
       );
       glow.value = withRepeat(
         withSequence(
-          withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }),
-          withTiming(0.4, { duration: 700, easing: Easing.inOut(Easing.quad) }),
+          withTiming(1, { duration: 720, easing: Easing.inOut(Easing.quad) }),
+          withTiming(0.45, { duration: 720, easing: Easing.inOut(Easing.quad) }),
         ),
+        -1,
+        false,
+      );
+      spin.value = withRepeat(
+        withTiming(1, { duration: 6000, easing: Easing.linear }),
         -1,
         false,
       );
     } else {
       cancelAnimation(float);
       cancelAnimation(glow);
+      cancelAnimation(spin);
       float.value = withTiming(0, { duration: 160 });
       glow.value = withTiming(0, { duration: 200 });
+      spin.value = 0;
     }
-  }, [lift, float, glow, selected]);
+  }, [lift, float, glow, spin, selected]);
 
   const wrapStyle = useAnimatedStyle(() => ({
     transform: [
       { translateY: lift.value + float.value },
-      { scale: 0.55 + 0.45 * entrance.value },
+      { scale: 0.6 + 0.4 * entrance.value },
     ],
     opacity: entrance.value,
   }));
 
-  const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value * 0.75 }));
+  const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value * 0.8 }));
 
   const sparkleStyle = useAnimatedStyle(() => ({
     opacity: sparkle.value,
     transform: [{ scale: 0.5 + sparkle.value * 1.3 }],
+  }));
+
+  const selectedSparkleStyle = useAnimatedStyle(() => ({
+    opacity: glow.value * 0.55,
+    transform: [{ rotate: `${spin.value * 360}deg` }, { scale: 0.9 + glow.value * 0.2 }],
   }));
 
   const bodySize = size * 0.88;
@@ -103,8 +128,8 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
         style={[
           styles.outerGlow,
           {
-            width: size * 1.35,
-            height: size * 1.35,
+            width: size * 1.5,
+            height: size * 1.5,
             borderRadius: size,
             backgroundColor: palette.base,
             shadowColor: palette.highlight,
@@ -113,7 +138,16 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
         ]}
       />
 
-      {/* 3D gem body: round + top facet + glint + bottom shade */}
+      {/* Rotating cross-glint when selected */}
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.selectedSparkleLayer, { width: size * 1.4, height: size * 1.4 }, selectedSparkleStyle]}
+      >
+        <View style={[styles.selSparkBar, styles.selSparkBarV, { backgroundColor: palette.highlight }]} />
+        <View style={[styles.selSparkBar, styles.selSparkBarH, { backgroundColor: palette.highlight }]} />
+      </Animated.View>
+
+      {/* 3D gem body */}
       <View
         style={[
           styles.body,
@@ -126,21 +160,21 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
           },
         ]}
       >
-        {/* Base radial-like gradient */}
+        {/* Base gradient */}
         <LinearGradient
           colors={[palette.highlight, palette.base, palette.shadow]}
           start={{ x: 0.3, y: 0.05 }}
-          end={{ x: 0.75, y: 1 }}
+          end={{ x: 0.72, y: 1 }}
           style={[StyleSheet.absoluteFillObject, { borderRadius: radius }]}
         />
 
-        {/* Top facet highlight (big soft ellipse) */}
+        {/* Top faceted highlight (big soft ellipse) */}
         <View
           style={[
             styles.topFacet,
             {
-              width: bodySize * 0.72,
-              height: bodySize * 0.34,
+              width: bodySize * 0.74,
+              height: bodySize * 0.36,
               borderRadius: bodySize,
               backgroundColor: palette.highlight,
             },
@@ -149,12 +183,38 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
 
         {/* Bottom shade for depth */}
         <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.28)"]}
+          colors={["transparent", "rgba(0,0,0,0.38)"]}
           style={[StyleSheet.absoluteFillObject, { borderRadius: radius }]}
           pointerEvents="none"
         />
 
-        {/* Specular glint */}
+        {/* Bottom crescent highlight (refractive bottom) */}
+        <View
+          style={[
+            styles.bottomCrescent,
+            {
+              width: bodySize * 0.68,
+              height: bodySize * 0.28,
+              borderRadius: bodySize,
+              borderBottomColor: palette.highlight,
+            },
+          ]}
+        />
+
+        {/* Rim light along top edge */}
+        <View
+          style={[
+            styles.rimLight,
+            {
+              width: bodySize * 0.82,
+              height: bodySize * 0.82,
+              borderRadius: bodySize,
+              borderTopColor: palette.highlight,
+            },
+          ]}
+        />
+
+        {/* Specular glint (primary) */}
         <View
           style={[
             styles.glint,
@@ -167,27 +227,32 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
           ]}
         />
 
-        {/* Tiny secondary glint */}
+        {/* Secondary micro-glint */}
         <View
           style={[
             styles.glintSmall,
             {
-              width: bodySize * 0.1,
-              height: bodySize * 0.1,
+              width: bodySize * 0.09,
+              height: bodySize * 0.09,
               borderRadius: bodySize,
               backgroundColor: colors.surfaceInverse,
             },
           ]}
         />
 
-        {/* Center icon */}
-        <Ionicons name={GEM_ICON[color]} size={size * 0.42} color={palette.icon} style={styles.icon} />
+        {/* Engraved icon (very subtle) */}
+        <Ionicons
+          name={GEM_ICON[color]}
+          size={size * 0.3}
+          color={palette.icon}
+          style={styles.icon}
+        />
       </View>
 
       {/* Sparkle burst on landing */}
       <Animated.View
         pointerEvents="none"
-        style={[styles.sparkleLayer, { width: size * 1.35, height: size * 1.35 }, sparkleStyle]}
+        style={[styles.sparkleLayer, { width: size * 1.4, height: size * 1.4 }, sparkleStyle]}
       >
         <View style={[styles.sparkleRing, { borderColor: palette.highlight, borderRadius: size }]} />
         <View style={[styles.sparkleBar, styles.sparkleBarV, { backgroundColor: colors.surfaceInverse }]} />
@@ -201,41 +266,64 @@ const useStyles = makeStyles((colors) => StyleSheet.create({
   gemWrap: { alignItems: "center", justifyContent: "center" },
   outerGlow: {
     position: "absolute",
-    shadowOpacity: 0.9,
-    shadowRadius: 14,
+    shadowOpacity: 0.95,
+    shadowRadius: 16,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 10,
+    elevation: 12,
   },
+  selectedSparkleLayer: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  selSparkBar: { position: "absolute", opacity: 0.55, borderRadius: 2 },
+  selSparkBarV: { width: 1.4, height: "100%" },
+  selSparkBarH: { width: "100%", height: 1.4 },
   body: {
     alignItems: "center",
     justifyContent: "center",
     borderWidth: StyleSheet.hairlineWidth,
     overflow: "hidden",
-    shadowOpacity: 0.55,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    shadowOpacity: 0.6,
+    shadowRadius: 11,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 7,
   },
   topFacet: {
     position: "absolute",
-    top: "7%",
-    opacity: 0.78,
+    top: "6%",
+    opacity: 0.82,
+  },
+  bottomCrescent: {
+    position: "absolute",
+    bottom: "8%",
+    borderBottomWidth: 1.6,
+    opacity: 0.55,
+    backgroundColor: "transparent",
+  },
+  rimLight: {
+    position: "absolute",
+    top: "2%",
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderTopWidth: 1.2,
+    opacity: 0.5,
   },
   glint: {
     position: "absolute",
     top: "16%",
     left: "22%",
-    opacity: 0.9,
+    opacity: 0.92,
     transform: [{ rotate: "-28deg" }],
   },
   glintSmall: {
     position: "absolute",
     bottom: "22%",
     right: "22%",
-    opacity: 0.55,
+    opacity: 0.6,
   },
   icon: {
-    opacity: 0.55,
+    opacity: 0.35,
     textShadowColor: colors.surfaceInverse,
     textShadowRadius: 2,
     textShadowOffset: { width: 0, height: 1 },
@@ -250,7 +338,7 @@ const useStyles = makeStyles((colors) => StyleSheet.create({
     width: "70%",
     height: "70%",
     borderWidth: 1.3,
-    opacity: 0.75,
+    opacity: 0.78,
   },
   sparkleBar: {
     position: "absolute",

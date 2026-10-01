@@ -32,12 +32,15 @@ Crear una experiencia móvil Expo vertical de clasificación de gemas, completam
 - Implementado AsyncStorage para progreso y mejores resultados.
 - Verificados lint, TypeScript, render móvil, movimiento válido, movimiento inválido, deshacer, reinicio, resolución completa del nivel 1 y persistencia de progreso.
 
-## Actualización visual gemas 3D — 2026-10-01
-- Rediseño de `src/components/Gem.tsx` con cuerpo redondo, gradiente diagonal highlight → base → shadow y sombra interior inferior para dar volumen.
-- Faceta superior (elipse clara), glint especular y micro-glint secundario para simular cristal pulido.
-- Entrada con spring + burst de destello (anillo + cruz) al aterrizar la gema en un tubo.
-- Al seleccionar: elevación por spring + loop de flotación suave + glow pulsante exterior del color de la gema.
-- Paleta de colores, mecánica, niveles, undo, reset y persistencia **no modificados**.
+## Pulido visual premium — 2026-10-01
+- Nuevo `AmbientBackground` con múltiples capas de iluminación (magenta superior izquierda, rose inferior derecha, wash cian suave, viñeta) para dar profundidad al fondo oscuro.
+- Nuevo `Sparkles` con 10 twinkles sutiles animados en ambas pantallas.
+- `Gem` elevado a joya 3D: faceta superior, crescent inferior refractivo, rim light superior, doble glint, icono grabado tenue, glow pulsante, destello de aterrizaje y cross-glint rotante cuando está seleccionada.
+- `Tube` rediseñado como cristal con reflejo lateral, sombra interior superior, borde pulido con brillo brand y pedestal con sombra inferior. Pulso sutil cuando seleccionado y shake al movimiento inválido.
+- `LevelCard` con gradiente interior, sheen superior, número con gradiente y píldora PAR con icono.
+- Header, chips de stats, tablero y dock de acciones con mejor jerarquía, iconos envueltos en pastillas de color y sombras más limpias.
+- Modal de victoria con gradiente interno y botón primario con gradiente + sombra brand.
+- Paleta, mecánica, niveles, movimientos, undo, reset, victoria y persistencia **no modificados**.
 
 ## Backlog priorizado
 ### P0 — Pendiente antes de ampliar el juego
