@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Jewel Sort Puzzle",
+    "name": "Puzzle Gems",
     "slug": "jewel-sort-puzzle",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#0C0E14"
       },
       "package": "com.emergent.puzzlegems.ozxnol"
     },
@@ -29,9 +29,9 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-image.png",
-          "imageWidth": 200,
+          "imageWidth": 260,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#0C0E14"
         }
       ],
       "expo-font",
