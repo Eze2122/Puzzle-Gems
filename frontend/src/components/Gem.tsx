@@ -125,7 +125,7 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
           colors={[palette.highlight, palette.base, palette.shadow]}
           start={{ x: 0.3, y: 0.05 }}
           end={{ x: 0.72, y: 1 }}
-          style={[StyleSheet.absoluteFillObject, { borderRadius: radius }]}
+          style={[StyleSheet.absoluteFill, { borderRadius: radius }]}
         />
 
         {/* Top faceted highlight */}
@@ -144,7 +144,7 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
         {/* Bottom shade for depth */}
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.38)"]}
-          style={[StyleSheet.absoluteFillObject, { borderRadius: radius }]}
+          style={[StyleSheet.absoluteFill, { borderRadius: radius }]}
           pointerEvents="none"
         />
 
@@ -212,7 +212,7 @@ export function Gem({ color, selected = false, size = 42 }: GemProps) {
         <Animated.View
           pointerEvents="none"
           style={[
-            StyleSheet.absoluteFillObject,
+            StyleSheet.absoluteFill,
             { borderRadius: radius, backgroundColor: colors.surfaceInverse },
             brightnessStyle,
           ]}

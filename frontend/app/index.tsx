@@ -16,6 +16,7 @@ import { getLevel, LEVELS } from "@/src/game/levels";
 import { canMoveGem, cloneTubes, isPuzzleComplete, moveGem, Tubes } from "@/src/game/logic";
 import { emptyProgress, loadProgress, Progress, recordCompletion } from "@/src/storage/progress";
 import { makeStyles, useTheme } from "@/src/theme";
+import { useAudio } from "@/src/audio/AudioProvider";
 
 if (Platform.OS === "android") UIManager.setLayoutAnimationEnabledExperimental?.(true);
 
@@ -26,6 +27,7 @@ export default function Index() {
   const styles = useStyles();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const audio = useAudio();
   const [progress, setProgress] = useState<Progress>(emptyProgress);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("levels");
@@ -90,12 +92,14 @@ export default function Index() {
     setMoves((current) => current + 1);
     setSelectedTube(null);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    audio.playMove();
     if (isPuzzleComplete(nextTubes)) {
       const nextMoves = moves + 1;
       setComplete(true);
       const updated = await recordCompletion(activeLevelId, nextMoves);
       setProgress(updated);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      audio.playWin();
     }
   };
 
@@ -165,7 +169,36 @@ export default function Index() {
               <Text style={styles.sectionTitle}>Tus niveles</Text>
               <Text style={styles.sectionHint}>Una colección, diez desafíos</Text>
             </View>
-            <View style={styles.line} />
+            <View style={styles.audioToggles}>
+              <TouchableOpacity
+                testID="toggle-music"
+                accessibilityRole="switch"
+                accessibilityLabel={audio.musicEnabled ? "Silenciar música" : "Activar música"}
+                accessibilityState={{ checked: audio.musicEnabled }}
+                onPress={audio.toggleMusic}
+                style={[styles.audioToggle, audio.musicEnabled && styles.audioToggleActive]}
+              >
+                <Ionicons
+                  name={audio.musicEnabled ? "musical-notes" : "musical-notes-outline"}
+                  size={16}
+                  color={audio.musicEnabled ? colors.brandPrimary : colors.muted}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="toggle-sfx"
+                accessibilityRole="switch"
+                accessibilityLabel={audio.sfxEnabled ? "Silenciar efectos" : "Activar efectos"}
+                accessibilityState={{ checked: audio.sfxEnabled }}
+                onPress={audio.toggleSfx}
+                style={[styles.audioToggle, audio.sfxEnabled && styles.audioToggleActive]}
+              >
+                <Ionicons
+                  name={audio.sfxEnabled ? "volume-high" : "volume-mute"}
+                  size={16}
+                  color={audio.sfxEnabled ? colors.brandPrimary : colors.muted}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.levelGrid}>
@@ -411,6 +444,22 @@ const useStyles = makeStyles((colors) => StyleSheet.create({
   sectionTitle: { color: colors.onSurface, fontSize: 20, fontWeight: "800" },
   sectionHint: { color: colors.muted, fontSize: 12, marginTop: 4 },
   line: { flex: 1, height: 1, backgroundColor: colors.divider, marginLeft: 18, marginTop: 10 },
+  audioToggles: {
+    marginLeft: "auto",
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  audioToggle: {
+    width: 34, height: 34, borderRadius: 12,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surfaceSecondary,
+  },
+  audioToggleActive: {
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.brandTertiary,
+  },
   levelGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
 
   tip: {

@@ -32,6 +32,18 @@ Crear una experiencia móvil Expo vertical de clasificación de gemas, completam
 - Implementado AsyncStorage para progreso y mejores resultados.
 - Verificados lint, TypeScript, render móvil, movimiento válido, movimiento inválido, deshacer, reinicio, resolución completa del nivel 1 y persistencia de progreso.
 
+## Audio original — 2026-10-01
+- `expo-audio` instalado (SDK 57 compatible). Tres pistas WAV originales generadas por síntesis en Python (sin derechos de terceros):
+  - `assets/audio/music.wav` — pad ambiental Am-F-C-G de 24 s con crossfade loop-safe.
+  - `assets/audio/move.wav` — tintineo de cristal (quinta justa 1760 Hz + 2637 Hz, 0.35 s).
+  - `assets/audio/win.wav` — arpegio Do mayor ascendente con shimmer, 1.6 s.
+- `src/audio/AudioProvider.tsx` montado en `_layout.tsx` entre `KeyboardProvider` y la `Stack`. Expone `playMove`, `playWin`, `musicEnabled`, `sfxEnabled`, `toggleMusic`, `toggleSfx`.
+- `src/audio/settings.ts` persiste preferencias en AsyncStorage bajo `pg_audio_settings_v1`.
+- Dos iconos toggle discretos (música / efectos) en la cabecera "Tus niveles" de la pantalla de selección; activo = píldora magenta, inactivo = contorno tenue.
+- `playMove()` se dispara tras cada movimiento válido y `playWin()` cuando se completa el nivel; respetan `sfxEnabled`.
+- Mecánica, niveles, movimientos, undo, reset, victoria, guardado de progreso, icono, splash, nombre y paleta **sin cambios**.
+- Verificado `npx tsc --noEmit` sin errores y lint limpio. Audio funcional en el bundle web y preparado para el build Android (expo-audio es el plugin oficial de Expo SDK 57).
+
 ## Pulido visual premium — 2026-10-01
 - Nuevo `AmbientBackground` con múltiples capas de iluminación (magenta superior izquierda, rose inferior derecha, wash cian suave, viñeta) para dar profundidad al fondo oscuro.
 - Nuevo `Sparkles` con 10 twinkles sutiles animados en ambas pantallas.

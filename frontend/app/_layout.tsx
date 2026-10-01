@@ -4,6 +4,7 @@ import { LogBox } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { StatusBar } from "expo-status-bar";
 
+import { AudioProvider } from "@/src/audio/AudioProvider";
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { queryClient } from "@/src/query-client";
 
@@ -19,7 +20,9 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <KeyboardProvider>
           <StatusBar style="light" />
-          <Stack screenOptions={{ headerShown: false }} />
+          <AudioProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </AudioProvider>
         </KeyboardProvider>
       </QueryClientProvider>
     </ErrorBoundary>
