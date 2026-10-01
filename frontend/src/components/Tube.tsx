@@ -20,6 +20,7 @@ export function Tube({ gems, selected, invalid, onPress, index }: TubeProps) {
   const slots = Array.from({ length: TUBE_CAPACITY }, (_, position) => gems[TUBE_CAPACITY - 1 - position]);
   return (
     <Pressable
+      testID={`tube-${index + 1}`}
       accessibilityRole="button"
       accessibilityLabel={`Tubo ${index + 1}, ${gems.length} gemas`}
       onPress={onPress}

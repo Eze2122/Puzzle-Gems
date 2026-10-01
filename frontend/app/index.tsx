@@ -142,9 +142,9 @@ export default function Index() {
     <LinearGradient colors={[colors.surface, colors.surfaceSecondary, colors.surface]} style={styles.root}>
       <ScrollView contentContainerStyle={[styles.gameContent, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 22 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.gameHeader}>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Volver a niveles" onPress={goToLevels} style={styles.iconButton}><Ionicons name="chevron-back" size={22} color={colors.onSurface} /></TouchableOpacity>
+          <TouchableOpacity testID="back-to-levels" accessibilityRole="button" accessibilityLabel="Volver a niveles" onPress={goToLevels} style={styles.iconButton}><Ionicons name="chevron-back" size={22} color={colors.onSurface} /></TouchableOpacity>
           <View style={styles.gameTitleWrap}><Text style={styles.kicker}>NIVEL {String(activeLevel.id).padStart(2, "0")}</Text><Text style={styles.gameTitle}>{activeLevel.title}</Text></View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Reiniciar nivel" onPress={restart} style={styles.iconButton}><Ionicons name="refresh" size={20} color={colors.onSurface} /></TouchableOpacity>
+          <TouchableOpacity testID="restart-top" accessibilityRole="button" accessibilityLabel="Reiniciar nivel" onPress={restart} style={styles.iconButton}><Ionicons name="refresh" size={20} color={colors.onSurface} /></TouchableOpacity>
         </View>
         <View style={styles.statsRow}>
           <View style={styles.stat}><Ionicons name="swap-horizontal" size={17} color={colors.brandPrimary} /><Text style={styles.statValue}>{moves}</Text><Text style={styles.statLabel}>MOVIMIENTOS</Text></View>
@@ -160,7 +160,7 @@ export default function Index() {
           </View>
         </View>
         <View style={styles.actionDock}>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Deshacer movimiento" onPress={undo} disabled={!history.length || complete} style={[styles.actionButton, (!history.length || complete) && styles.disabled]}><Ionicons name="arrow-undo" size={19} color={history.length && !complete ? colors.onSurface : colors.muted} /><Text style={styles.actionText}>Deshacer</Text></TouchableOpacity>
+          <TouchableOpacity testID="undo-button" accessibilityRole="button" accessibilityLabel="Deshacer movimiento" onPress={undo} disabled={!history.length || complete} style={[styles.actionButton, (!history.length || complete) && styles.disabled]}><Ionicons name="arrow-undo" size={19} color={history.length && !complete ? colors.onSurface : colors.muted} /><Text style={styles.actionText}>Deshacer</Text></TouchableOpacity>
           <View style={styles.actionDivider} />
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Reiniciar nivel" onPress={restart} style={styles.actionButton}><Ionicons name="reload-outline" size={19} color={colors.onSurface} /><Text style={styles.actionText}>Reiniciar</Text></TouchableOpacity>
         </View>

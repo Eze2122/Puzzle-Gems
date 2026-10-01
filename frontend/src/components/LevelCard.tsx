@@ -10,7 +10,7 @@ export function LevelCard({ level, completed, locked, best, onPress }: LevelCard
   const { colors } = useTheme();
   const styles = useStyles();
   return (
-    <Pressable disabled={locked} onPress={onPress} style={({ pressed }) => [styles.card, completed && styles.complete, pressed && styles.pressed, locked && styles.locked]}>
+    <Pressable testID={`level-${level.id}`} disabled={locked} onPress={onPress} style={({ pressed }) => [styles.card, completed && styles.complete, pressed && styles.pressed, locked && styles.locked]}>
       <View style={styles.cardTop}>
         <View style={[styles.number, completed && styles.numberComplete]}><Text style={styles.numberText}>{level.id}</Text></View>
         {locked ? <Ionicons name="lock-closed" size={17} color={colors.muted} /> : <Ionicons name={completed ? "checkmark-circle" : "play-circle"} size={22} color={completed ? colors.success : colors.brandPrimary} />}
